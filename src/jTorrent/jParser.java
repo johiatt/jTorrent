@@ -1,19 +1,10 @@
 package jTorrent;
 
 import java.io.BufferedReader;
-import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.Reader;
-import java.nio.charset.StandardCharsets;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Scanner;
-import java.util.regex.MatchResult;
-import java.util.regex.Pattern;
 
 public class jParser 
 {
@@ -35,11 +26,11 @@ public class jParser
 	}
 	
 	//value pairs
-	public List<DecodedValue> parseDictionary(InputStream stream) throws IOException {
+	public dList parseDictionary(InputStream stream) throws IOException {
 		
 		//List<T> mainList = new LinkedList<T>();
 		//TODO: mapped values, not just a list.
-		List<DecodedValue> dictionary = new LinkedList<DecodedValue>();
+		dList dictionary = new dList();
 		//grab first length
 		
 
@@ -109,20 +100,13 @@ public class jParser
 //	    System.out.println(scan.next(".").charAt(0));
 //	    System.out.println(scan.next(".").charAt(0));
 
-	    
-	    
-		
-		//TODO: Replace temp decoded value with values decoded/parsed from the given string.
-		//DecodedValue temp = new DecodedValue(8, "Contents");
-		
-		//decodedValues.add(temp);
 		
 		return dictionary;
 	}
-//	
-	public List<DecodedValue> parseList(InputStream stream) throws IOException{
+	
+	public dList parseList(InputStream stream) throws IOException{
 		int length;
-		List<DecodedValue> list = new LinkedList<DecodedValue>();
+		dList list = new dList();
 		//add any of these things TO this list, and at an e, return the entire list..
 		while(stream.available()!=0) {
 			//grab char and reset stream position
@@ -159,15 +143,6 @@ public class jParser
 		return dv;
 	}
 
-
-	public String toString(List<DecodedValue> list) {
-		String output = "";
-		
-		for (DecodedValue decodedValue : list) {
-			output += "length: " + decodedValue.getLength() + " - " + "contents: " + decodedValue.getContents() + "\n";
-		}
-		return output;
-	}
 	
 	private int getLength(InputStream stream) throws IOException {
 		String length = "";
