@@ -35,11 +35,11 @@ public class jParser
 	}
 	
 	//value pairs
-	public List<Object> parseDictionary(InputStream stream) throws IOException {
+	public List<DecodedValue> parseDictionary(InputStream stream) throws IOException {
 		
 		//List<T> mainList = new LinkedList<T>();
 		//TODO: mapped values, not just a list.
-		List<Object> dictionary = new LinkedList<Object>();
+		List<DecodedValue> dictionary = new LinkedList<DecodedValue>();
 		//grab first length
 		
 
@@ -77,10 +77,10 @@ public class jParser
 			if(c=='d') {
 				c = (char)stream.read();
 				System.out.println("d's found : " + (++stack));
-				dictionary.add(parseDictionary(stream));
+				dictionary.addAll(parseDictionary(stream));
 			} else if (c =='l') {
 				c = (char)stream.read();
-				dictionary.add(parseList(stream));	
+				dictionary.addAll(parseList(stream));	
 			} else if (c =='i') {
 				c = (char)stream.read();
 				dictionary.add(parseInt(stream));	
@@ -119,10 +119,10 @@ public class jParser
 		
 		return dictionary;
 	}
-	
-	public List<Object> parseList(InputStream stream) throws IOException{
+//	
+	public List<DecodedValue> parseList(InputStream stream) throws IOException{
 		int length;
-		List<Object> list = new LinkedList<Object>();
+		List<DecodedValue> list = new LinkedList<DecodedValue>();
 		//add any of these things TO this list, and at an e, return the entire list..
 		while(stream.available()!=0) {
 			//grab char and reset stream position
@@ -132,10 +132,10 @@ public class jParser
 			stream.reset();
 			if(c=='d') {
 				c = (char)stream.read();
-				list.add(parseDictionary(stream));
+				list.addAll(parseDictionary(stream));
 			} else if (c =='l') {
 				c = (char)stream.read();
-				list.add(parseList(stream));
+				list.addAll(parseList(stream));
 			} else if (c =='i') {
 				c = (char)stream.read();
 				list.add(parseInt(stream));
@@ -149,12 +149,14 @@ public class jParser
 		return list;
 	}
 	
-	private String parseString(InputStream stream) throws IOException {
+	private DecodedValue parseString(InputStream stream) throws IOException {
 		return getStreamChars(stream, getLength(stream));
 	}
 	
-	private Integer parseInt(InputStream stream) throws IOException {
-		return getLength(stream);
+	private DecodedValue parseInt(InputStream stream) throws IOException {
+		Integer length = getLength(stream);
+		DecodedValue dv = new DecodedValue(length, length.toString());
+		return dv;
 	}
 
 
@@ -162,7 +164,7 @@ public class jParser
 		String output = "";
 		
 		for (DecodedValue decodedValue : list) {
-			output += "length " + decodedValue.getLength() + " " + "contents: " + decodedValue.getContents();
+			output += "length: " + decodedValue.getLength() + " - " + "contents: " + decodedValue.getContents() + "\n";
 		}
 		return output;
 	}
@@ -185,12 +187,16 @@ public class jParser
 		return (c>=48 && c<=57) ? true : false;
 	}
 	
-	private String getStreamChars(InputStream stream, int length) throws IOException {
+	private DecodedValue getStreamChars(InputStream stream, int length) throws IOException {
+		DecodedValue contents = null;
 		String value = "";
+		
 		for(int i = 0; i < length; i++) {
 			value+=(char)stream.read();
 		}
-		return value;
+		
+		contents = new DecodedValue(length, value);
+		return contents;
 	}
 	
 	

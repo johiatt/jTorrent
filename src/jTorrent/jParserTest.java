@@ -43,9 +43,29 @@ class jParserTest {
 	@Test
 	void ShouldDecodeEncodedString() throws IOException {
 		
-		List<Object> actualDecodings = jParser.parseDictionary(stream);
+		List<DecodedValue> actualDecodings = jParser.parseDictionary(stream);
 		
-		assertArrayEquals(expectedDecodings.toArray(), actualDecodings.toArray());
+		assertArrayEquals(expectedDecodings, actualDecodings);
 	}
 
+
+	private void assertArrayEquals(List<DecodedValue> expectedDecodes, List<DecodedValue> actualDecodings) {
+		
+		if(expectedDecodes.size() != actualDecodings.size()) {
+			fail("The expected decodings length[" + expectedDecodes.size() + "] did not match actual size[" + actualDecodings.size() + "]");
+		}
+		
+		DecodedValue dv = null, adv = null;
+		for(int i = 0; i < expectedDecodes.size(); i++) {
+			dv = expectedDecodes.get(i);
+			adv = actualDecodings.get(i);
+				if(!dv.getContents().equals(adv.getContents())) {
+					fail("expected contents [" + dv.getContents() +  "] did not match actual contents[" + adv.getContents() + "]");
+				}
+				
+				if(dv.getLength() != adv.getLength()) {
+					fail("expected length [" + dv.getLength() +  "] did not match actual length[" + adv.getLength() + "]");
+				}
+			}
+		}
 }

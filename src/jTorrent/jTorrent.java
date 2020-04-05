@@ -25,9 +25,9 @@ public class jTorrent {
 		//System.out.println(tEncoding);
 		InputStream stream = new ByteArrayInputStream(tEncoding.getBytes(StandardCharsets.UTF_8));
 		//TODO:
-		List<Object> values = parser.parseDictionary(stream);
+		List<DecodedValue> decodedValues = parser.parseDictionary(stream);
 		
-		//System.out.println(parser.toString(values));
+		System.out.println(parser.toString(decodedValues));
 		System.out.println("finish");
 	}
 
