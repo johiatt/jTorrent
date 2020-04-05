@@ -3,7 +3,10 @@ package jTorrent;
 
 import static org.junit.Assert.*;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -11,7 +14,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 class jParserTest {
-	
+	InputStream stream;
 	String validEncoding;
 	List<DecodedValue> expectedDecodings;
 	jParser jParser;
@@ -19,6 +22,7 @@ class jParserTest {
 	@BeforeEach
 	public void initData() {
 		validEncoding = "d3:bar4:spam3:fooi42ee";
+		stream = new ByteArrayInputStream(validEncoding.getBytes(StandardCharsets.UTF_8));
 		
 		expectedDecodings = new LinkedList<DecodedValue>(); 
 		
@@ -39,7 +43,7 @@ class jParserTest {
 	@Test
 	void ShouldDecodeEncodedString() throws IOException {
 		
-		List<DecodedValue> actualDecodings = jParser.getDictionary(validEncoding);
+		List<Object> actualDecodings = jParser.parseDictionary(stream);
 		
 		assertArrayEquals(expectedDecodings.toArray(), actualDecodings.toArray());
 	}
