@@ -1,19 +1,10 @@
 package jTorrent;
 
 import java.io.BufferedReader;
-import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.Reader;
-import java.nio.charset.StandardCharsets;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Scanner;
-import java.util.regex.MatchResult;
-import java.util.regex.Pattern;
 
 public class jParser 
 {
@@ -35,11 +26,11 @@ public class jParser
 	}
 	
 	//value pairs
-	public List<Object> parseDictionary(InputStream stream) throws IOException {
+	public dList parseDictionary(InputStream stream) throws IOException {
 		
 		//List<T> mainList = new LinkedList<T>();
 		//TODO: mapped values, not just a list.
-		List<Object> dictionary = new LinkedList<Object>();
+		dList dictionary = new dList();
 		//grab first length
 		
 
@@ -77,10 +68,10 @@ public class jParser
 			if(c=='d') {
 				c = (char)stream.read();
 				System.out.println("d's found : " + (++stack));
-				dictionary.add(parseDictionary(stream));
+				dictionary.addAll(parseDictionary(stream));
 			} else if (c =='l') {
 				c = (char)stream.read();
-				dictionary.add(parseList(stream));	
+				dictionary.addAll(parseList(stream));	
 			} else if (c =='i') {
 				c = (char)stream.read();
 				dictionary.add(parseInt(stream));	
@@ -109,20 +100,13 @@ public class jParser
 //	    System.out.println(scan.next(".").charAt(0));
 //	    System.out.println(scan.next(".").charAt(0));
 
-	    
-	    
-		
-		//TODO: Replace temp decoded value with values decoded/parsed from the given string.
-		//DecodedValue temp = new DecodedValue(8, "Contents");
-		
-		//decodedValues.add(temp);
 		
 		return dictionary;
 	}
 	
-	public List<Object> parseList(InputStream stream) throws IOException{
+	public dList parseList(InputStream stream) throws IOException{
 		int length;
-		List<Object> list = new LinkedList<Object>();
+		dList list = new dList();
 		//add any of these things TO this list, and at an e, return the entire list..
 		while(stream.available()!=0) {
 			//grab char and reset stream position
@@ -132,10 +116,10 @@ public class jParser
 			stream.reset();
 			if(c=='d') {
 				c = (char)stream.read();
-				list.add(parseDictionary(stream));
+				list.addAll(parseDictionary(stream));
 			} else if (c =='l') {
 				c = (char)stream.read();
-				list.add(parseList(stream));
+				list.addAll(parseList(stream));
 			} else if (c =='i') {
 				c = (char)stream.read();
 				list.add(parseInt(stream));
@@ -149,23 +133,16 @@ public class jParser
 		return list;
 	}
 	
-	private String parseString(InputStream stream) throws IOException {
+	private DecodedValue parseString(InputStream stream) throws IOException {
 		return getStreamChars(stream, getLength(stream));
 	}
 	
-	private Integer parseInt(InputStream stream) throws IOException {
-		return getLength(stream);
+	private DecodedValue parseInt(InputStream stream) throws IOException {
+		Integer length = getLength(stream);
+		DecodedValue dv = new DecodedValue(length, length.toString());
+		return dv;
 	}
 
-
-	public String toString(List<DecodedValue> list) {
-		String output = "";
-		
-		for (DecodedValue decodedValue : list) {
-			output += "length " + decodedValue.getLength() + " " + "contents: " + decodedValue.getContents();
-		}
-		return output;
-	}
 	
 	private int getLength(InputStream stream) throws IOException {
 		String length = "";
@@ -185,12 +162,16 @@ public class jParser
 		return (c>=48 && c<=57) ? true : false;
 	}
 	
-	private String getStreamChars(InputStream stream, int length) throws IOException {
+	private DecodedValue getStreamChars(InputStream stream, int length) throws IOException {
+		DecodedValue contents = null;
 		String value = "";
+		
 		for(int i = 0; i < length; i++) {
 			value+=(char)stream.read();
 		}
-		return value;
+		
+		contents = new DecodedValue(length, value);
+		return contents;
 	}
 	
 	

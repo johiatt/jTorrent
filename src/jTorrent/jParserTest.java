@@ -16,7 +16,7 @@ import org.junit.jupiter.api.Test;
 class jParserTest {
 	InputStream stream;
 	String validEncoding;
-	List<DecodedValue> expectedDecodings;
+	dList expectedDecodings;
 	jParser jParser;
 	
 	@BeforeEach
@@ -24,7 +24,7 @@ class jParserTest {
 		validEncoding = "d3:bar4:spam3:fooi42ee";
 		stream = new ByteArrayInputStream(validEncoding.getBytes(StandardCharsets.UTF_8));
 		
-		expectedDecodings = new LinkedList<DecodedValue>(); 
+		expectedDecodings = new dList(); 
 		
 		DecodedValue expectedDecoding = new DecodedValue(3, "bar");
 		DecodedValue expectedDecoding1 = new DecodedValue(4, "spam");
@@ -43,9 +43,29 @@ class jParserTest {
 	@Test
 	void ShouldDecodeEncodedString() throws IOException {
 		
-		List<Object> actualDecodings = jParser.parseDictionary(stream);
+		dList actualDecodings = jParser.parseDictionary(stream);
 		
-		assertArrayEquals(expectedDecodings.toArray(), actualDecodings.toArray());
+		assertArrayEquals(expectedDecodings, actualDecodings);
 	}
 
+
+	private void assertArrayEquals(dList expectedDecodes, dList actualDecodings) {
+		
+		if(expectedDecodes.size() != actualDecodings.size()) {
+			fail("The expected decodings length[" + expectedDecodes.size() + "] did not match actual size[" + actualDecodings.size() + "]");
+		}
+		
+		DecodedValue dv = null, adv = null;
+		for(int i = 0; i < expectedDecodes.size(); i++) {
+			dv = expectedDecodes.get(i);
+			adv = actualDecodings.get(i);
+				if(!dv.getContents().equals(adv.getContents())) {
+					fail("expected contents [" + dv.getContents() +  "] did not match actual contents[" + adv.getContents() + "]");
+				}
+				
+				if(dv.getLength() != adv.getLength()) {
+					fail("expected length [" + dv.getLength() +  "] did not match actual length[" + adv.getLength() + "]");
+				}
+			}
+		}
 }
