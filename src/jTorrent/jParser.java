@@ -5,69 +5,44 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 
 public class jParser 
 {
 	//be able to return a dictionary of dictionaries
 	public String getFirstLine(File file) throws IOException 
 	{
-		BufferedReader bufferedReader = new BufferedReader(new FileReader(file));
-		
-		String fullLine = "";
-		
-		if(bufferedReader.ready())
-		{
-			fullLine = bufferedReader.readLine();
-		}
-		
-		bufferedReader.close();
-		
-		return fullLine;
+//		BufferedReader bufferedReader = new BufferedReader(new FileReader(file));
+//		
+//		String fullLine = "";
+//		
+//		while(bufferedReader.ready())
+//		{
+//			//maybe we use a separate reader?
+//			String append = bufferedReader.readLine();
+//			fullLine += append;
+//		}
+//		
+//		bufferedReader.close();
+//		System.out.println(fullLine.length());
+//		
+//		return fullLine;
+		return new String ( Files.readAllBytes( Paths.get(file.getPath())));
 	}
 	
 	//value pairs
 	public dList parseDictionary(InputStream stream) throws IOException {
-		
-		//List<T> mainList = new LinkedList<T>();
-		//TODO: mapped values, not just a list.
 		dList dictionary = new dList();
-		//grab first length
-		
-
-		//char c = (char)input.read();
-		//read one char at a time?
-		
-		//can we pass stream as a parameter?
-		//char start = (char)stream.read();
-		//build length string out of char stream
-//		String length = "";
-//		do {
-//			char c = (char)stream.read();
-//			if(c>=48 && c<=57) {
-//				length+=c;
-//			} else 
-//				break;
-//		} while(true);
-		
-		//mark current spot, check character, go back to mark
-		//If and only if the char after a value is another number. 
-		
-		
-//		int length = getLength(stream);
-//		String streamString = getStreamChars(stream, length);
-//		System.out.println(streamString);
-
-		
-		int stack = 0;
 		while(stream.available()!=0) {
 			//grab char and reset stream position
 			//System.out.println(stream.available());
+			DecodedValue input; 
 			stream.mark(0);
 			char c = (char)stream.read();
 			stream.reset();
 			if(c=='d') {
 				c = (char)stream.read();
-				System.out.println("d's found : " + (++stack));
 				dictionary.addAll(parseDictionary(stream));
 			} else if (c =='l') {
 				c = (char)stream.read();
@@ -76,37 +51,26 @@ public class jParser
 				c = (char)stream.read();
 				dictionary.add(parseInt(stream));	
 			} else if (charIsInt(c)) {
-				//how do we know which object to add to?
-				dictionary.add(parseString(stream));
+				//find pieces, read in length and the sets of 20 bytes, 40 hex.
+				input = parseString(stream);
+				if(input.getContents().contentEquals("pieces")) {
+					dictionary.add(input);
+					dictionary.add(parseInt(stream));
+					dictionary.addAll(parseHashBytes(stream));
+				} else
+					dictionary.add(input);
 			} else if (c =='e') {
 				c = (char)stream.read();
 				return dictionary;
 			} 
 		}
-		//after the FINAL e, all that's left is hash bytes.
-		
-//		Scanner scan = new Scanner(encoding);
-//		Pattern p = Pattern.compile("d(\\d+)");
-//		
-//		encoding = scan.findInLine(p);
-//		MatchResult result = scan.match();
-//	    if(result.groupCount()>=1)
-//	    	System.out.println(result.group(1));
-	    //find next colon.
-	    
-//	    System.out.println(scan.findInLine(":[a-zA-Z]+"));
-//	    System.out.println(scan.findInLine(":[a-zA-Z]+"));
-//	    System.out.println(scan.next(".").charAt(0));
-//	    System.out.println(scan.next(".").charAt(0));
-//	    System.out.println(scan.next(".").charAt(0));
-
-		
 		return dictionary;
 	}
 	
 	public dList parseList(InputStream stream) throws IOException{
 		int length;
 		dList list = new dList();
+		DecodedValue input; 
 		//add any of these things TO this list, and at an e, return the entire list..
 		while(stream.available()!=0) {
 			//grab char and reset stream position
@@ -124,6 +88,7 @@ public class jParser
 				c = (char)stream.read();
 				list.add(parseInt(stream));
 			}  else if (charIsInt(c)) {
+				//c = (char)stream.read();
 				list.add(parseString(stream));
 			}  else if (c =='e') {
 				c = (char)stream.read();
@@ -141,6 +106,29 @@ public class jParser
 		Integer length = getLength(stream);
 		DecodedValue dv = new DecodedValue(length, length.toString());
 		return dv;
+	}
+	
+	public dList parseHashBytes(InputStream stream) throws IOException{
+		dList list = new dList();
+		int hexCount = 0;
+		String hex;
+		while (stream.available() != 0) {
+			hex = "";
+			//adds 7 F's when reading nothing?
+			//40 hex chars, 20 bytes.
+			for (int i = 0; i < 20; i++) {
+				if (stream.available() != 0) {
+					byte b = (byte) stream.read();
+					hex += (String.format("%02X", b));
+				}
+			}
+			hexCount++;
+			DecodedValue contents = new DecodedValue(hex.length(), hex);
+			list.add(contents);
+		}
+		list.add(new DecodedValue(0,hexCount + " 20 byte hex values"));
+		//System.out.println(hexCount + " 20 byte hex values");
+		return list;
 	}
 
 	

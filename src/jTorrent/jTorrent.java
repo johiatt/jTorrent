@@ -8,28 +8,25 @@ import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 public class jTorrent {
-	public static void main(String[] args) throws IOException {
-		
-		jParser parser = new jParser();
-		File testFile = new File("test.torrent");
-		String tEncoding = "";
-		
-		
-		try {
-			tEncoding = parser.getFirstLine(testFile);
-			
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		
-		//System.out.println(tEncoding);
-		InputStream stream = new ByteArrayInputStream(tEncoding.getBytes(StandardCharsets.UTF_8));
-		//TODO:
-		dList decodedValues = parser.parseDictionary(stream);
-		
-		System.out.println(decodedValues.toString());
-		System.out.println("finish");
-	}
-
-
+	
+	public static void main(String[] args){
+        jParser parser = new jParser();
+        File testFile = new File("test.torrent");
+        String tEncoding = "";
+        dList decodedValues = null;
+        InputStream stream = null;
+        
+        try {
+            tEncoding = parser.getFirstLine(testFile);
+            //System.out.println(tEncoding);
+            stream = new ByteArrayInputStream(tEncoding.getBytes());
+            
+            decodedValues = parser.parseDictionary(stream);
+            stream.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        System.out.println(decodedValues.toString());
+        System.out.println("finish");
+    }
 }
