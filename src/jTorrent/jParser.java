@@ -55,8 +55,9 @@ public class jParser
 				input = parseString(stream);
 				if(input.getContents().contentEquals("pieces")) {
 					dictionary.add(input);
-					dictionary.add(parseInt(stream));
-					dictionary.addAll(parseHashBytes(stream));
+					DecodedValue pieces = parseInt(stream);
+					dictionary.add(pieces);
+					dictionary.addAll(parseHashBytes(stream, Integer.parseInt(pieces.getContents())));
 				} else
 					dictionary.add(input);
 			} else if (c =='e') {
@@ -108,18 +109,18 @@ public class jParser
 		return dv;
 	}
 	
-	public dList parseHashBytes(InputStream stream) throws IOException{
+	public dList parseHashBytes(InputStream stream, int pieces) throws IOException{
 		dList list = new dList();
 		int hexCount = 0;
 		String hex;
-		while (stream.available() != 0) {
+		while (stream.available() != 0 && hexCount < (pieces/20)) {
 			hex = "";
 			//adds 7 F's when reading nothing?
 			//40 hex chars, 20 bytes.
 			for (int i = 0; i < 20; i++) {
 				if (stream.available() != 0) {
 					byte b = (byte) stream.read();
-					hex += (String.format("%02X", b));
+					hex += (String.format("%02X", b).toLowerCase());
 				}
 			}
 			hexCount++;
@@ -161,13 +162,4 @@ public class jParser
 		contents = new DecodedValue(length, value);
 		return contents;
 	}
-	
-	
-//	public String processValue(InputStream stream) throws IOException {
-//		
-//	}
-//	
-//	public List<String> getList(InputStream stream) throws IOException {
-//		
-//	}
 }
