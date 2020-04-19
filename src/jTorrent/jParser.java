@@ -117,13 +117,44 @@ public class jParser
 			hex = "";
 			//adds 7 F's when reading nothing?
 			//40 hex chars, 20 bytes.
+			//use byte array rather than string? 
+			
 			for (int i = 0; i < 20; i++) {
 				if (stream.available() != 0) {
 					byte b = (byte) stream.read();
-					hex += (String.format("%02X", b).toLowerCase());
+					//byte b = (byte) stream.read();type name = new type();
+					//byteArray[i] = (byte) stream.read();
+					//pull out byte, convert to char, i need 20 bytes
+					//char ch = (char)b;
+//					//the byte is a signed integer, 
+					//String z = ("\\x");
+					//System.out.println(z);
+//					//saved as \\ but prints as \... 
+//					String hexAppend = z+"x";
+//					String h = (String.format("%02X", b).toLowerCase());
+//					String zs = hexAppend+h;
+					hex += ("%"+(String.format("%02X", b).toLowerCase()));
+					//hex += b;
 				}
 			}
+			//http://torrent.ubuntu.com:6969/file?info_hash=%9A%813%3C%1B%16%E4%A8%3C%10%F3%05%2C%15%90%AA%DF%5E.%20
+			//http://torrent.ubuntu.com:6969/announce?info_hash=%9A%813%3C%1B%16%E4%A8%3C%10%F3%05%2C%15%90%AA%DF%5E.%20&peer_id=ABCDEFGHIJKLMNOPQRST&port=6881&uploaded=0&downloaded=0&left=727955456&event=started&numwant=100&no_peer_id=1&compact=1
+			
+			String tracker = "http://open.acgnxtracker.com/announce?";
+			String info_hash = "info_hash="+hex;
+			//not in hex
+			String peer_id = "&peer_id=ABCDEFGHIJKLMNOPQRST";
+			String rest = "&port=6881&uploaded=0&downloaded=0&left=727955456&event=started&numwant=100&no_peer_id=1&compact=1";
+			//System.out.println(tracker+info_hash+peer_id+rest);
+			
+			
+			//hex = UrlTools.encodeValue(hex);
 			hexCount++;
+			//hex = hex.replace("'", "\"");
+			//String test = UrlTools.encodeValue(hex);
+			//String byteTest = encode(byteArray);
+			//System.out.println(byteTest);
+
 			DecodedValue contents = new DecodedValue(hex.length(), hex);
 			list.add(contents);
 		}
@@ -131,7 +162,6 @@ public class jParser
 		//System.out.println(hexCount + " 20 byte hex values");
 		return list;
 	}
-
 	
 	private int getLength(InputStream stream) throws IOException {
 		String length = "";
