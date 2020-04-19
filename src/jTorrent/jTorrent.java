@@ -24,9 +24,9 @@ public class jTorrent {
             decodedValues = parser.parseDictionary(stream);
             stream.close();
         } catch (IOException e) {
-            e.printStackTrace();
+        	System.err.println(e.getMessage());
         }
-        System.out.println(decodedValues.toString());
+//        System.out.println(decodedValues.toString());
         System.out.println("finish");
     }
 }

@@ -10,6 +10,9 @@ import java.nio.file.Paths;
 
 public class jParser 
 {
+	
+	UrlTools urlTools = new UrlTools();
+	
 	//be able to return a dictionary of dictionaries
 	public String getFirstLine(File file) throws IOException 
 	{
@@ -147,7 +150,8 @@ public class jParser
 			String rest = "&port=6881&uploaded=0&downloaded=0&left=727955456&event=started&numwant=100&no_peer_id=1&compact=1";
 			//System.out.println(tracker+info_hash+peer_id+rest);
 			
-			
+			String response = urlTools.getRequest(tracker, info_hash + peer_id + rest);
+			System.out.println(response);
 			//hex = UrlTools.encodeValue(hex);
 			hexCount++;
 			//hex = hex.replace("'", "\"");
