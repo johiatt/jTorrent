@@ -12,21 +12,6 @@ public class jParser {
 
 	// be able to return a dictionary of dictionaries
 	public String getFirstLine(File file) throws IOException {
-		// BufferedReader bufferedReader = new BufferedReader(new FileReader(file));
-		//
-		// String fullLine = "";
-		//
-		// while(bufferedReader.ready())
-		// {
-		// //maybe we use a separate reader?
-		// String append = bufferedReader.readLine();
-		// fullLine += append;
-		// }
-		//
-		// bufferedReader.close();
-		// System.out.println(fullLine.length());
-		//
-		// return fullLine;
 		return new String(Files.readAllBytes(Paths.get(file.getPath())));
 	}
 
@@ -169,7 +154,7 @@ public class jParser {
 			// urlTools.logger.info("\n tracker: {}\n info_hash: {}\n peer_id: {}\n rest:
 			// {}\n", tracker, info_hash, peer_id, rest);
 
-			// hex = UrlTools.encodeValue(hex);
+			hex = urlTools.encodeValue(hex);
 			hexCount++;
 			// hex = hex.replace("'", "\"");
 			// String test = UrlTools.encodeValue(hex);

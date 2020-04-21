@@ -142,4 +142,9 @@ public class UrlTools {
 		return resultString.length() > 0 ? resultString.substring(0, resultString.length() - 1) : resultString;
 	}
 
+	public Object getUdpRequest(String tracker) {
+		//https://www.baeldung.com/udp-in-java
+		return null;
+	}
+
 }
