@@ -7,13 +7,10 @@ import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.ProtocolException;
-import java.nio.file.Files;
-import java.util.concurrent.ExecutionException;
 
 import org.junit.Test;
 
 import jTorrent.*;
-import junit.framework.TestResult;
 
 public class UrlToolsTest {
 
@@ -37,7 +34,7 @@ public class UrlToolsTest {
 		boolean https = false;
 
 		try {
-			String result = urlTools.getRequest(testURL, https);
+			urlTools.getRequest(testURL, https);
 		} catch (ProtocolException e) {
 			testResult = true;
 		}
@@ -53,7 +50,7 @@ public class UrlToolsTest {
 		String badHash = "alduihgaluihg";
 
 		try {
-			String result = urlTools.getRequest(badHash, https);
+			urlTools.getRequest(badHash, https);
 		} catch (MalformedURLException e) {
 			testResult = true;
 		}

@@ -26,8 +26,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class UrlTools {
-	
-	Logger logger;
+
+	public Logger logger;
 	
 	public UrlTools() {
 		 logger = LoggerFactory.getLogger(UrlTools.class);
@@ -110,6 +110,14 @@ public class UrlTools {
 		client.close();
 
 		return file;
+	}
+	
+	public Logger getLogger() {
+		return logger;
+	}
+
+	public void setLogger(Logger logger) {
+		this.logger = logger;
 	}
 
 	public static String encodeValue(String value) {
