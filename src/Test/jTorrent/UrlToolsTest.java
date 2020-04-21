@@ -2,10 +2,13 @@ package Test.jTorrent;
 
 import static org.junit.Assert.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+
+import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.ProtocolException;
 import java.nio.file.Files;
+import java.util.concurrent.ExecutionException;
 
 import org.junit.Test;
 
@@ -57,19 +60,31 @@ public class UrlToolsTest {
 
 		assertTrue(testResult);
 	}
-	
-	//https://ipfs.io/ipfs/QmRW3V9znzFW9M5FYbitSEvd5dQrPWGvPvgQD6LM22Tv8D
+
 	@Test
 	public synchronized void ShouldGetFileFromURL() throws IOException {
-		boolean testResult = true;
-		byte[] result = urlTools.getRequestAsync("https://ipfs.io/ipfs/QmRW3V9znzFW9M5FYbitSEvd5dQrPWGvPvgQD6LM22Tv8D", true);
-		System.out.println(result);
-		
-		if(result == null) {
-			testResult = false;
-		}
-		
-		assertTrue(testResult);
-}
+		String fileURL = "https://ipfs.io/ipfs/QmRW3V9znzFW9M5FYbitSEvd5dQrPWGvPvgQD6LM22Tv8D";
+		String fileName = "wikiImage";
+		String fileType = ".svg";
+
+		File actualFile = urlTools.getRequestAsync(fileURL, fileName, fileType);
+
+		assertTrue(actualFile.exists());
+
+		actualFile.delete();
+	}
+
+	@Test
+	public synchronized void ShouldGetFileFromURLWithNoType() throws IOException {
+		String fileURL = "https://ipfs.io/ipfs/QmRW3V9znzFW9M5FYbitSEvd5dQrPWGvPvgQD6LM22Tv8D";
+		String fileName = "typeTest";
+		String fileType = "";
+
+		File actualFile = urlTools.getRequestAsync(fileURL, fileName, fileType);
+
+		assertTrue(actualFile.getAbsolutePath().endsWith(".data"));
+
+		actualFile.delete();
+	}
 
 }
