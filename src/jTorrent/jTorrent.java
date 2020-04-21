@@ -4,11 +4,7 @@ import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.InputStream;
 
-import org.slf4j.Logger;
-
 public class jTorrent {
-	
-	static Logger _logger = new UrlTools().logger;
 
 	public static void main(String[] args) {
 		jParser parser = new jParser();
@@ -50,10 +46,8 @@ public class jTorrent {
 			}
 
 		} catch (Exception e) {
-			_logger.debug(e.getMessage());
 			System.err.println(e.getMessage());
 		}
-
 		System.out.println("finish");
 	}
 }
