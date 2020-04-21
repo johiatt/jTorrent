@@ -2,7 +2,6 @@ package jTorrent;
 
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileDescriptor;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -13,8 +12,6 @@ import java.net.MalformedURLException;
 import java.net.ProtocolException;
 import java.net.URL;
 import java.net.URLEncoder;
-import java.nio.channels.FileChannel;
-import java.nio.file.Files;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
@@ -25,8 +22,16 @@ import org.asynchttpclient.AsyncHttpClient;
 import org.asynchttpclient.Dsl;
 import org.asynchttpclient.HttpResponseBodyPart;
 import org.asynchttpclient.Response;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class UrlTools {
+	
+	Logger logger;
+	
+	public UrlTools() {
+		 logger = LoggerFactory.getLogger(UrlTools.class);
+	}
 
 	private String fakeIdentity = "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.11 (KHTML, like Gecko) Chrome/23.0.1271.95 Safari/537.11";
 
@@ -62,6 +67,7 @@ public class UrlTools {
 		String result = content.toString();
 
 		if (result.equals("error code: 1010")) {
+			logger.info("Firebase error: " + result);
 			throw new ProtocolException("403 Forbidden: Try setting https flag to true");
 		}
 
@@ -95,9 +101,9 @@ public class UrlTools {
 				}
 			}).get();
 		} catch (InterruptedException e) {
-			System.err.println("Thread was interrupted " + e.getMessage());
+			logger.debug("Thread was interrupted " + e.getMessage());
 		} catch (ExecutionException ex) {
-			System.err.println("Execution error " + ex.getCause());
+			logger.debug("Execution error " + ex.getCause());
 		}
 
 		stream.getChannel().close();
