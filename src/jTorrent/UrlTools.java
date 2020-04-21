@@ -53,7 +53,7 @@ public class UrlTools {
 			throw new ProtocolException("403 Forbidden: Try setting https flag to true");
 		}
 
-		return content.toString();
+		return result;
 	}
 
 	public static String encodeValue(String value) {
