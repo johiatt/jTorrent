@@ -32,7 +32,7 @@ public class UrlTools {
 
 	public String getRequest(String uri, boolean https) throws ProtocolException, MalformedURLException, IOException {
 		URL url = new URL(uri);
-		
+
 		HttpURLConnection con = https ? (HttpsURLConnection) url.openConnection()
 				: (HttpURLConnection) url.openConnection();
 
@@ -58,56 +58,53 @@ public class UrlTools {
 
 		in.close();
 		con.disconnect();
-		
+
 		String result = content.toString();
-		
-		if(result.equals("error code: 1010")) {
+
+		if (result.equals("error code: 1010")) {
 			throw new ProtocolException("403 Forbidden: Try setting https flag to true");
 		}
 
 		return result;
 	}
-	
-	public synchronized byte[] getRequestAsync(String uri, boolean https) throws ProtocolException, MalformedURLException, IOException {
-		
-	File file = new File("empty.data");
-	
-	if(file.exists()) {
-		file.delete();
-	}
 
-	file.createNewFile();
-	
-	FileOutputStream stream = new FileOutputStream(file);
-	AsyncHttpClient client = Dsl.asyncHttpClient();
-	
-	try {
-		client.prepareGet(uri)
-		    .execute(new AsyncCompletionHandler<FileOutputStream>() {
-		
-		        @Override
-		        public State onBodyPartReceived(HttpResponseBodyPart bodyPart) throws Exception {
-		            stream.getChannel()
-		                .write(bodyPart.getBodyByteBuffer());
-		            return State.CONTINUE;
-		        }
-		
-		        @Override
-		        public FileOutputStream onCompleted(Response response) throws Exception {
-		            return stream;
-		        }
-		    })
-		    .get();
-	} catch (InterruptedException | ExecutionException e) {
-		e.printStackTrace();
-	}
-	
-	stream.getChannel().close();
-	client.close();
-	
-	return Files.readAllBytes(file.toPath());
-	}
+	public synchronized File getRequestAsync(String uri, String fileName, String fileType) throws IOException {
+		File file = new File(fileName + (!fileType.isEmpty() ? fileType : ".data"));
 
+		if (file.exists()) {
+			file.delete();
+		}
+
+		file.createNewFile();
+
+		FileOutputStream stream = new FileOutputStream(file);
+		AsyncHttpClient client = Dsl.asyncHttpClient();
+
+		try {
+			client.prepareGet(uri).execute(new AsyncCompletionHandler<FileOutputStream>() {
+
+				@Override
+				public State onBodyPartReceived(HttpResponseBodyPart bodyPart) throws Exception {
+					stream.getChannel().write(bodyPart.getBodyByteBuffer());
+					return State.CONTINUE;
+				}
+
+				@Override
+				public FileOutputStream onCompleted(Response response) throws Exception {
+					return stream;
+				}
+			}).get();
+		} catch (InterruptedException e) {
+			System.err.println("Thread was interrupted " + e.getMessage());
+		} catch (ExecutionException ex) {
+			System.err.println("Execution error " + ex.getCause());
+		}
+
+		stream.getChannel().close();
+		client.close();
+
+		return file;
+	}
 
 	public static String encodeValue(String value) {
 		try {
