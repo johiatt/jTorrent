@@ -1,6 +1,9 @@
 package jTorrent;
 
 import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileDescriptor;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -10,9 +13,18 @@ import java.net.MalformedURLException;
 import java.net.ProtocolException;
 import java.net.URL;
 import java.net.URLEncoder;
+import java.nio.channels.FileChannel;
+import java.nio.file.Files;
 import java.util.Map;
+import java.util.concurrent.ExecutionException;
 
 import javax.net.ssl.HttpsURLConnection;
+
+import org.asynchttpclient.AsyncCompletionHandler;
+import org.asynchttpclient.AsyncHttpClient;
+import org.asynchttpclient.Dsl;
+import org.asynchttpclient.HttpResponseBodyPart;
+import org.asynchttpclient.Response;
 
 public class UrlTools {
 
@@ -55,6 +67,47 @@ public class UrlTools {
 
 		return result;
 	}
+	
+	public synchronized byte[] getRequestAsync(String uri, boolean https) throws ProtocolException, MalformedURLException, IOException {
+		
+	File file = new File("empty.data");
+	
+	if(file.exists()) {
+		file.delete();
+	}
+
+	file.createNewFile();
+	
+	FileOutputStream stream = new FileOutputStream(file);
+	AsyncHttpClient client = Dsl.asyncHttpClient();
+	
+	try {
+		client.prepareGet(uri)
+		    .execute(new AsyncCompletionHandler<FileOutputStream>() {
+		
+		        @Override
+		        public State onBodyPartReceived(HttpResponseBodyPart bodyPart) throws Exception {
+		            stream.getChannel()
+		                .write(bodyPart.getBodyByteBuffer());
+		            return State.CONTINUE;
+		        }
+		
+		        @Override
+		        public FileOutputStream onCompleted(Response response) throws Exception {
+		            return stream;
+		        }
+		    })
+		    .get();
+	} catch (InterruptedException | ExecutionException e) {
+		e.printStackTrace();
+	}
+	
+	stream.getChannel().close();
+	client.close();
+	
+	return Files.readAllBytes(file.toPath());
+	}
+
 
 	public static String encodeValue(String value) {
 		try {
