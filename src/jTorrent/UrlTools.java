@@ -120,13 +120,6 @@ public class UrlTools {
 		this.logger = logger;
 	}
 
-	public static String encodeValue(String value) {
-		try {
-			return URLEncoder.encode(value, "UTF-8");
-		} catch (UnsupportedEncodingException ex) {
-			throw new RuntimeException(ex.getCause());
-		}
-	}
 
 	public static String getParamsString(Map<String, String> params) throws UnsupportedEncodingException {
 		StringBuilder result = new StringBuilder();

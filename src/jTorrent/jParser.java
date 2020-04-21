@@ -3,6 +3,8 @@ package jTorrent;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 
@@ -154,7 +156,7 @@ public class jParser {
 			// urlTools.logger.info("\n tracker: {}\n info_hash: {}\n peer_id: {}\n rest:
 			// {}\n", tracker, info_hash, peer_id, rest);
 
-			hex = urlTools.encodeValue(hex);
+			hex = encodeValue(hex);
 			hexCount++;
 			// hex = hex.replace("'", "\"");
 			// String test = UrlTools.encodeValue(hex);
@@ -169,6 +171,14 @@ public class jParser {
 		return list;
 	}
 
+	public String encodeValue(String value) {
+		try {
+			return URLEncoder.encode(value, "UTF-8");
+		} catch (UnsupportedEncodingException ex) {
+			throw new RuntimeException(ex.getCause());
+		}
+	}
+	
 	private int getLength(InputStream stream) throws IOException {
 		String length = "";
 		do {
