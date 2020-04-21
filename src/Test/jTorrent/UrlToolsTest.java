@@ -27,7 +27,7 @@ public class UrlToolsTest {
 	}
 
 	@Test
-	public void ShouldReturnProtocolExceptionIfIncorrect() throws IOException {
+	public void ShouldReturnProtocolExceptionIfIdentityNeeded() throws IOException {
 		boolean testResult = false;
 		boolean https = false;
 
