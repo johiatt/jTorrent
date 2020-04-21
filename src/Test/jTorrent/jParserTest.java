@@ -1,4 +1,4 @@
-package jTorrent;
+package Test.jTorrent;
 
 
 import static org.junit.Assert.*;
@@ -7,11 +7,11 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
-import java.util.LinkedList;
-import java.util.List;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+
+import jTorrent.*;
 
 class jParserTest {
 	InputStream stream;

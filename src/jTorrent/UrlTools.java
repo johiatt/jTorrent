@@ -7,70 +7,50 @@ import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
+import java.net.ProtocolException;
 import java.net.URL;
 import java.net.URLEncoder;
-import java.net.UnknownServiceException;
 import java.util.Map;
+
+import javax.net.ssl.HttpsURLConnection;
 
 public class UrlTools {
 
-	public String getRequest(String uri, String hash) throws IOException {
+	private String fakeIdentity = "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.11 (KHTML, like Gecko) Chrome/23.0.1271.95 Safari/537.11";
 
-		HttpURLConnection con = null;
-		InputStream stream = null;
+	public String getRequest(String uri, boolean https) throws ProtocolException, MalformedURLException, IOException {
+		URL url = new URL(uri);
+		
+		HttpURLConnection con = https ? (HttpsURLConnection) url.openConnection()
+				: (HttpURLConnection) url.openConnection();
+
+		if (https) {
+			con.setRequestProperty("User-Agent", fakeIdentity);
+		}
+
+		con.setRequestMethod("GET");
+		con.setRequestProperty("Content-Type", "text/plain");
+
+		int status = con.getResponseCode();
+
+		InputStream stream = (status == HttpURLConnection.HTTP_OK) ? con.getInputStream() : con.getErrorStream();
+
+		BufferedReader in = new BufferedReader(new InputStreamReader(stream));
+		StringBuffer content = new StringBuffer();
+
 		String response = "";
-		StringBuffer content = null;
 
-		try {
-			URL url = new URL(uri + hash);
+		while ((response = in.readLine()) != null) {
+			content.append(response);
+		}
 
-			con = (HttpURLConnection) url.openConnection();
-			con.setRequestMethod("GET");
-			con.setRequestProperty("Content-Type", "text/plain");
-
-			int status = con.getResponseCode();
-
-
-			try {
-				stream = con.getInputStream();
-
-				if (status > 299) {
-					stream = con.getErrorStream();
-				} else {
-					stream = con.getInputStream();
-				}
-
-				// params
-				//
-				//			Map<String, String> parameters = new HashMap<>();
-				//			parameters.put("info_hash", hash);
-
-				//			con.setDoOutput(true);
-				//			DataOutputStream out = new DataOutputStream(con.getOutputStream());
-				//			out.writeBytes(getParamsString(parameters));
-
-				//String contentType = con.getHeaderField("Content-Type");
-				//			
-
-			} catch (UnknownServiceException e) {
-				System.out.println("Broken stream");
-				System.err.println(e.getMessage());
-			} 
-
-			BufferedReader in = new BufferedReader(new InputStreamReader(stream));
-
-
-			content = new StringBuffer();
-			while ((response = in.readLine()) != null) {
-				content.append(response);
-			}
-			in.close();
-
-			con.disconnect();
-
-		} catch (MalformedURLException e) {
-			System.out.println("Broken URL");
-			System.err.println(e.getMessage());
+		in.close();
+		con.disconnect();
+		
+		String result = content.toString();
+		
+		if(result.equals("error code: 1010")) {
+			throw new ProtocolException("403 Forbidden: Try setting https flag to true");
 		}
 
 		return content.toString();
