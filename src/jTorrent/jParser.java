@@ -178,7 +178,7 @@ public class jParser {
 			throw new RuntimeException(ex.getCause());
 		}
 	}
-	
+
 	private int getLength(InputStream stream) throws IOException {
 		String length = "";
 		do {

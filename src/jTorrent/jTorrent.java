@@ -3,6 +3,8 @@ package jTorrent;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.InputStream;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 
 public class jTorrent {
 
@@ -12,6 +14,7 @@ public class jTorrent {
 		String tEncoding = "";
 		dList decodedValues = null;
 		InputStream stream = null;
+		dList trackerIP = null;
 		UrlTools urlTools = new UrlTools();
 
 		try {
@@ -28,6 +31,8 @@ public class jTorrent {
 			// TODO: Should probably be careful about how this is done so we don't DDOS
 			// anyone.
 
+			trackerIP = new dList();
+			
 			for (DecodedValue decodedValue : trackers) {
 				String tracker = decodedValue.getContents();
 				boolean isHttps = decodedValue.getContents().startsWith("https");
@@ -37,17 +42,29 @@ public class jTorrent {
 //					String result = urlTools.getRequest(tracker, isHttps);
 				} else {
 					//TODO Decide type
-					Object result = urlTools.getUdpRequest(tracker); 
+					int start = tracker.indexOf("//") + 2;
+					int end = tracker.indexOf(":");
+					end = tracker.indexOf(":", end + 1);
+					String site = tracker.substring(start, end);
+					try {
+						InetAddress result = urlTools.getUdpRequest(site); 
+						DecodedValue dT = new DecodedValue(result.getHostName(), result.getHostAddress());
+						trackerIP.add(dT);
+						
+					} catch (UnknownHostException e) {
+						System.out.println("Try next host");
+					}
 				}
+				
 				
 //				 String peer_id = "&peer_id=ABCDEFGHIJKLMNOPQRST";
 //				 String rest = "&port=6881&uploaded=0&downloaded=0&left=727955456&event=started&numwant=100&no_peer_id=1&compact=1";
-				// System.out.println(result);
 			}
 
 		} catch (Exception e) {
-			System.err.println(e.getMessage());
+			System.err.println("Error: " + e.getMessage());
 		}
+		System.out.println(trackerIP.toString());
 		System.out.println("finish");
 	}
 }

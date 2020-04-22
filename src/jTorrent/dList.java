@@ -155,9 +155,9 @@ public class dList implements List<DecodedValue> {
 	@Override
 	public String toString() {
 	String output = "";
-		
 		for (DecodedValue decodedValue : dList) {
-			output += "length: " + decodedValue.getLength() + " - " + "contents: " + decodedValue.getContents() + "\n";
+			int type = decodedValue.getLength();
+			output += ((type == -1) ? "tracker: " : "length: ") + ((type == -1) ? decodedValue.getTracker() : decodedValue.getLength()) + " - " + ((type == -1) ? "address: " : "contents: ") + decodedValue.getContents() + "\n";
 		}
 		return output;
 	}
