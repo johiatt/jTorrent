@@ -39,14 +39,6 @@ public class UrlTools {
 
 	public UrlTools() {
 		logger = LoggerFactory.getLogger(UrlTools.class);
-		try {
-			if(!started) {
-				startServer();
-				setStarted(true);
-			}
-		} catch (IOException e) {
-			logger.debug("UrlTools: startServer failed" + e.getMessage());
-		}
 	}
 
 	private String fakeIdentity = "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.11 (KHTML, like Gecko) Chrome/23.0.1271.95 Safari/537.11";
@@ -151,6 +143,15 @@ public class UrlTools {
 	}
 
 	public InetAddress getUdpRequest(String tracker) throws UnknownHostException {
+		try {
+			if(!started) {
+				startServer();
+				setStarted(true);
+			}
+		} catch (IOException e) {
+			logger.debug("UrlTools: startServer failed" + e.getMessage());
+		}
+		
 		// https://www.baeldung.com/udp-in-java
 		DatagramSocket socket = null;
 		InetAddress address = null;
