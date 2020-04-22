@@ -5,8 +5,10 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.InetAddress;
 import java.net.MalformedURLException;
 import java.net.ProtocolException;
+import java.net.UnknownHostException;
 
 import org.junit.Test;
 
@@ -82,6 +84,23 @@ public class UrlToolsTest {
 		assertTrue(actualFile.getAbsolutePath().endsWith(".data"));
 
 		actualFile.delete();
+	}
+
+	@Test
+	public void ShouldCorrectlyGetUdpRequest() {
+		String tracker = "torrentclub.tech";
+		String uri = tracker;
+		InetAddress addr = null;
+		
+		try {
+			 addr = urlTools.getUdpRequest(uri);
+		} catch (UnknownHostException e) {
+			e.printStackTrace();
+			System.err.println("Unknown host: " + uri);
+		}
+		
+		assertTrue((addr.getAddress().length > 0));
+
 	}
 
 }

@@ -1,5 +1,6 @@
 package jTorrent;
 
+import java.awt.List;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -7,11 +8,17 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
+import java.net.DatagramPacket;
+import java.net.DatagramSocket;
 import java.net.HttpURLConnection;
+import java.net.InetAddress;
 import java.net.MalformedURLException;
 import java.net.ProtocolException;
+import java.net.SocketException;
 import java.net.URL;
 import java.net.URLEncoder;
+import java.net.UnknownHostException;
+import java.util.LinkedList;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
@@ -28,9 +35,18 @@ import org.slf4j.LoggerFactory;
 public class UrlTools {
 
 	public Logger logger;
-	
+	private boolean started;
+
 	public UrlTools() {
-		 logger = LoggerFactory.getLogger(UrlTools.class);
+		logger = LoggerFactory.getLogger(UrlTools.class);
+		try {
+			if(!started) {
+				startServer();
+				setStarted(true);
+			}
+		} catch (IOException e) {
+			logger.debug("UrlTools: startServer failed" + e.getMessage());
+		}
 	}
 
 	private String fakeIdentity = "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.11 (KHTML, like Gecko) Chrome/23.0.1271.95 Safari/537.11";
@@ -111,7 +127,7 @@ public class UrlTools {
 
 		return file;
 	}
-	
+
 	public Logger getLogger() {
 		return logger;
 	}
@@ -119,7 +135,6 @@ public class UrlTools {
 	public void setLogger(Logger logger) {
 		this.logger = logger;
 	}
-
 
 	public static String getParamsString(Map<String, String> params) throws UnsupportedEncodingException {
 		StringBuilder result = new StringBuilder();
@@ -135,9 +150,71 @@ public class UrlTools {
 		return resultString.length() > 0 ? resultString.substring(0, resultString.length() - 1) : resultString;
 	}
 
-	public Object getUdpRequest(String tracker) {
-		//https://www.baeldung.com/udp-in-java
-		return null;
+	public InetAddress getUdpRequest(String tracker) throws UnknownHostException {
+		// https://www.baeldung.com/udp-in-java
+		DatagramSocket socket = null;
+		InetAddress address = null;
+		
+		try {
+			socket = new DatagramSocket();
+			address = InetAddress.getByName(tracker);
+			System.out.println(address);
+		} catch (SocketException e) {
+			logger.debug(e.getMessage());
+			System.out.println("Socket Exception" + e.getStackTrace());
+		} finally {
+			if (socket != null) {
+				socket.close();
+			}
+		}
+
+		return address;
+	}
+
+	private void startServer() throws IOException {
+		DatagramSocket ds = new DatagramSocket(1234);
+		byte[] receive = new byte[65535];
+
+		DatagramPacket DpReceive = null;
+		while (true) {
+
+			// Step 2 : create a DatgramPacket to receive the data.
+			DpReceive = new DatagramPacket(receive, receive.length);
+
+			// Step 3 : revieve the data in byte buffer.
+			ds.receive(DpReceive);
+
+			System.out.println("Client:-" + data(receive));
+
+			// Exit the server if the client sends "bye"
+			if (data(receive).toString().equals("bye")) {
+				System.out.println("Client sent bye.....EXITING");
+				break;
+			}
+
+			// Clear the buffer after every message.
+			receive = new byte[65535];
+		}
+	}
+
+	public static StringBuilder data(byte[] a) {
+		if (a == null)
+			return null;
+		StringBuilder ret = new StringBuilder();
+		int i = 0;
+		while (a[i] != 0) {
+			ret.append((char) a[i]);
+			i++;
+		}
+		return ret;
+	}
+
+	public boolean isStarted() {
+		return started;
+	}
+
+	public void setStarted(boolean started) {
+		this.started = started;
 	}
 
 }
